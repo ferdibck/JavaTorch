@@ -1,5 +1,4 @@
 
-
 public class Matrix {
     int dim0;
     int dim1;
@@ -18,7 +17,6 @@ public class Matrix {
 
     int flattenIndex(int[] indices) {
         return indices[0]*dim1 + indices[1];
-
     }
 
     int[] unravelIndex(int idx) {
@@ -61,32 +59,18 @@ public class Matrix {
         return size;
     }
 
-    void setEntryBroadcasted(int x, int y, double e) {
-        data[flattenIndexBroadcasted(x, y)] = e;
+    double getEntryBroadcasted(int x, int y) {
+        int xb;
+        int yb;
 
-        
-        }
+        if (x >= dim0) xb = 0;
+        else xb = x;
+
+        if (y >= dim1) yb = 0;
+        else yb = y;
+
+        return getEntry(xb, yb);
     }
-
-    /* 
-    static Matrix[] broadcast(Matrix A, Matrix B) {
-        int[] shapeA = A.getShape();
-        int[] shapeB = B.getShape();
-
-        int dim0_broadcasted = Math.max(shapeA[0], shapeB[0]);
-        int dim1_broadcasted = Math.max(shapeA[1], shapeB[1]);
-
-        Matrix A_broadcasted = new Matrix(dim0_broadcasted, dim1_broadcasted);
-        Matrix B_broadcasted = new Matrix(dim0_broadcasted, dim1_broadcasted);
-
-        for(int i = 0; i < dim0_broadcasted; i++) {
-
-            for(int j = 0; j < dim1_broadcasted; j++) {
-                A_broadcasted.setEntryBroadcasted(i, j, A.getEntry(i, j));
-                B_broadcasted.setEntryBroadcasted(i, j, B.getEntry(i, j));
-            }
-    }
-    */
 
     static Boolean broadcastable(Matrix A, Matrix B) {
         int[] shapeA = A.getShape();
@@ -121,6 +105,28 @@ public class Matrix {
             }
 
             return res;
+
+        }
+    }
+
+    static Matrix add(Matrix A, Matrix B) {
+        if(broadcastable(A, B)) {
+            int dim0 = Math.max(A.getShape()[0], B.getShape()[0]);
+            int dim1 = Math.max(A.getShape()[1], B.getShape()[1]);
+
+            Matrix res = new Matrix(dim0, dim1);
+
+            for(int i = 0; i < dim0; i++) {
+                for(int j = 0; j < dim1; j++) {
+                    res.setEntry(i, j, A.getEntryBroadcasted(i, j) + B.getEntryBroadcasted(i, j));
+                }
+            }
+
+            return res;
+        }
+
+        else {
+            throw new Error("Tensor shapes are not broadcastable.");
 
         }
     }
